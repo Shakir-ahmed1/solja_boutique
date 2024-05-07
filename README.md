@@ -1,4 +1,4 @@
-clone the repository `git clone `
+clone the repository `git clone https://github.com/Shakir-ahmed1/solja_butieuqe.git`
 
 copy sql code inside the `database creation.txt` file and run it inside mysql
 
