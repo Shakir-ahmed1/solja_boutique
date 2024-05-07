@@ -27,12 +27,10 @@
 <h1>Order History</h1>
 {% for order in orders %}
 <!-- <p><strong>Order Date: {{ order.order_date }}</strong></p> -->
-<button class="collapsible" onclick="toggleContent('order{{order.id}}')">Date: {{ order.order_date }} Total Items: {{orders[order]|length}}</button>
+<button class="collapsible" onclick="toggleContent('order{{order.id}}')">Date: {{ order.order_date.strftime('%B %d, %Y, <%I:%M %p>') }} | Total Items: {{order.items|length}}</button>
 <ul>
     <div class="content" id="order{{order.id}}">
-        <!-- {% for item in orders[order] %}
-        <p>{{item[1].name}}</p>
-        {% endfor %} -->
+
 
         <table>
             <thead>
@@ -44,15 +42,16 @@
                 </tr>
             </thead>
             <tbody>
-                {% set total_price = namespace(value=0) %}
-                {% for item in orders[order] %}
-                {% set total_price.value = total_price.value +item[0].unit_price * item[0].quantity %}
 
+                {% set total_price = namespace(value=0) %}
+                {% for item in order.items %}
+
+                {% set total_price.value = total_price.value + item.unit_price * item.quantity %}
                 <tr>
-                    <td>{{ item[1].name }}</td>
-                    <td>{{ item[0].quantity }}</td>
-                    <td>${{ item[0].unit_price }}</td>
-                    <td>${{ item[0].unit_price * item[0].quantity }}</td>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ item.unit_price }}</td>
+                    <td>${{ item.unit_price * item.quantity }}</td>
                 </tr>
                 {% endfor %}
                 <tr>

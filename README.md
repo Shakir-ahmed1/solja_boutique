@@ -22,9 +22,7 @@ routes
 
 - /product
 
-- /product
-
-- /product_id
+- /product/product_id
 
 - /products
 

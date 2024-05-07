@@ -2,22 +2,8 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime, DECIMAL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
-# Create SQLAlchemy engine
-# Update with your database connection details
-# from dotenv import get_variables
-# import os
-# # Load environment variables from .env file
-# load_dotenv()
+from config import sql_db, sql_host, sql_password, sql_username
 
-# Access environment variables
-# sql_username = get_variable('.env', "SQL_USERNAME")
-# sql_password = get_variable('.env', "SQL_PASSWORD")
-# sql_host = get_variable('.env', "SQL_HOST")
-# sql_db = get_variable('.env', "SQL_DB")
-sql_username = 'root'
-sql_password = 'password'
-sql_host = 'localhost'
-sql_db = 'mydb'
 
 engine = create_engine(
     f'mysql://{sql_username}:{sql_password}@{sql_host}/{sql_db}')
@@ -49,9 +35,8 @@ class Category(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(45), nullable=False)
 
+
 # Define Product class
-
-
 class Product(Base):
     __tablename__ = 'products'
 
@@ -77,6 +62,7 @@ class Order(Base):
     customer_id = Column(Integer, ForeignKey('customers.id'))
 
     customer = relationship("Customer")
+    items = relationship("OrderItem", back_populates="order")
 
 # Define OrderItem class
 

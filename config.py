@@ -1,4 +1,5 @@
-sql_username = 'your_user_name'
-sql_password = 'your_password'
-sql_host = 'localhost'  # no change
-sql_db = 'mydb'  # no change
+sql_username = 'root'
+sql_password = 'password'
+sql_host = 'localhost'
+sql_db = 'mydb'
+company_name = 'Solja Boutique'

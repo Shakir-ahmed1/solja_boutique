@@ -3,19 +3,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 # Assuming you have a models.py file with SQLAlchemy ORM classes for Customer and Product
 from models import Customer, Product, Category, Order, OrderItem
-from config import sql_db, sql_host, sql_password, sql_username
+from config import sql_db, sql_host, sql_password, sql_username, company_name
 
 
 app = Flask(__name__)
 # Replace with a secret key for session management
 app.secret_key = 'your_secret_key'
 
-# SQLAlchemy engine setup
-# Update with your database connection details
-sql_username = 'root'
-sql_password = 'password'
-sql_host = 'localhost'
-sql_db = 'mydb'
 
 engine = create_engine(
     f'mysql://{sql_username}:{sql_password}@{sql_host}/{sql_db}')
@@ -48,7 +42,7 @@ def inject_orders_count():
     for cat in db_catagories:
         categories[cat.id] = cat.name
     db_session.close()
-    return dict(orders_count=orders_count, user_logged_in=user_logged_in, user_detail=user_detail, categories=categories)
+    return dict(orders_count=orders_count, user_logged_in=user_logged_in, user_detail=user_detail, categories=categories, company_name=company_name)
 
 
 def redirect_back():
@@ -449,24 +443,22 @@ def delete_order():
     return jsonify({'message': 'Order deleted successfully'}), 200
 
 
-@app.route('/order_history')
+@app.route('/order_histories')
 def all_orders():
 
     # Create a session
     db_session = Session()
 
     # Query the database to fetch all orders for the current customer
-    orders = db_session.query(Order).filter_by().all()
-    new_order = {}
+    orders = db_session.query(Order).all()
     for new in orders:
-        order_product = db_session.query(
-            OrderItem, Product).filter_by(order_id=new.id).all()
-        new_order[new] = order_product
+        for item in new.items:
+            item.product
     # Close the session
     db_session.close()
 
     # Render the template with the orders data
-    return render_template('all_orders.html', orders=new_order)
+    return render_template('all_orders.html', orders=orders)
 
 
 @app.route('/order_history')
@@ -480,19 +472,17 @@ def order_history():
 
     # Create a session
     db_session = Session()
-
-    # Query the database to fetch all orders for the current customer
-    orders = db_session.query(Order).filter_by(customer_id=customer_id).all()
-    new_order = {}
+    orders = db_session.query(Order).filter(
+        Order.customer_id == customer_id).all()
     for new in orders:
-        order_product = db_session.query(
-            OrderItem, Product).filter_by(order_id=new.id).all()
-        new_order[new] = order_product
-    # Close the session
+        for item in new.items:
+            item.product
+
+            # Close the session
     db_session.close()
 
     # Render the template with the orders data
-    return render_template('show_order_history.html', orders=new_order)
+    return render_template('show_order_history.html', orders=orders)
 
 
 @app.route('/buy', methods=['POST'])
