@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Purchase History</title>
+</head>
+<body>
+    <h1>Purchase History</h1>
+    <p>{{ purchase_history }}</p>
+    {% for order_date, products in purchase_history.items() %}
+    <h2>Order Date: {{ order_date }}</h2>
+    <ul>
+        {% for product in products %}
+        <li>{{ product.name }} - {{ product.price }}</li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+</body>
+</html>

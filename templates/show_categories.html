@@ -1,0 +1,12 @@
+{% extends "admin_base.html" %}
+{% block title %}All Catagories{% endblock %}
+{% block content %}
+<h1>All Categories</h1>
+<ul>
+    {% for category in categories %}
+        <li>{{ category.name }}</li>
+    {% endfor %}
+    <li><a href="{{ url_for('create_category') }}">+ Add new category</a></li>
+
+</ul>
+{% endblock %}

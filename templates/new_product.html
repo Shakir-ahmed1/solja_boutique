@@ -1,0 +1,82 @@
+<style>
+    /* Style the select dropdown */
+.select-dropdown {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #f2f2f2;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  color: #555;
+  width: 200px; /* Adjust width as needed */
+}
+
+/* Style the select dropdown arrow */
+.select-dropdown:after {
+  content: '\25BC'; /* Unicode character for down arrow */
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  color: #555;
+}
+
+/* Hover effect */
+.select-dropdown:hover {
+  background-color: #e6e6e6;
+}
+
+/* Focus effect */
+.select-dropdown:focus {
+  outline: none;
+  border-color: #66afe9;
+  box-shadow: 0 0 5px rgba(102, 175, 233, 0.5);
+}
+
+/* Disable text selection */
+.select-dropdown::selection {
+  background-color: transparent;
+}
+
+/* Disabled state */
+.select-dropdown:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+</style>
+{% extends "admin_base.html" %}
+{% block title %}Add product{% endblock %}
+{% block content %}
+<h1>Create a New Product</h1>
+<form action="{{ url_for('create_product') }}" method="POST">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required><br><br>
+    
+    <label for="description">Description:</label>
+    <input type="text" id="description" name="description" required><br><br>
+    
+    <label for="price">Price:</label>
+    <input type="number" id="price" name="price" required><br><br>
+    
+    <label for="stock_quantity">Stock Quantity:</label>
+    <input type="number" id="stock_quantity" name="stock_quantity" required><br><br>
+    
+    <label for="category_id">Category:</label>
+    <select id="category_id" name="category_id" class="select-dropdown" required>
+        {% for category in catagories %}
+        <option value="{{ category.id }}">{{ category.name }}</option>
+        {% endfor %}
+    </select><br><br>
+    
+    <label for="item_photo">Item Photo:</label>
+    <input type="text" id="item_photo" name="item_photo"><br><br>
+
+    <button type="submit">Create Product</button>
+</form>
+{% endblock %}
+{% block scripts %}
+
+{% endblock %}

@@ -1,0 +1,36 @@
+
+<style>
+.category-style {
+    padding: 3px;
+    background-color: red;
+    border: 1px solid red;
+    border-radius: 15px;
+}
+.category-container {
+    margin-top: 10px;
+}
+</style>
+{% extends "admin_base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h1>Products</h1>
+<div class="product-container">
+    <div class="card">
+        <h1 style="position: relative;top: 100px;"><a href="{{ url_for('new_product') }}">+ Add new product</a></h1>
+
+    </div>
+    {% for product in products %}
+        <div class="card">
+            <h2>{{ product.name }}</h2>
+            <img src="{{ url_for('static', filename='images/' + product.item_photo) }}" alt="{{ product.name }}">
+            <div class="category-container">
+                <span class="category-style">{{ categories[product.category_id]}}</span>
+            </div>
+            <p>Description: {{ product.description }}</p>
+            <p>Price: ${{ product.price }}</p>
+            <p>Stock Quantity: {{ product.stock_quantity }}</p>
+            <!-- Add more details as needed -->
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

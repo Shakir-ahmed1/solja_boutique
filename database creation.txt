@@ -1,0 +1,174 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
+USE `mydb` ;
+
+-- -----------------------------------------------------
+-- Table `mydb`.`customers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`customers` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `firstname` VARCHAR(45) NOT NULL,
+  `last_name` VARCHAR(45) NOT NULL,
+  `email` VARCHAR(45) NOT NULL,
+  `phone_number` VARCHAR(45) NOT NULL,
+  `region` VARCHAR(45) NULL DEFAULT 'not set',
+  `city` VARCHAR(45) NULL DEFAULT 'not set',
+  `password` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`categories`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`categories` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`products`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`products` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `description` VARCHAR(45) NOT NULL,
+  `price` DECIMAL NOT NULL,
+  `stock_quantity` INT NOT NULL,
+  `category_id` INT NOT NULL,
+  `item_photo` VARCHAR(255) NULL DEFAULT 'default.png',
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+  INDEX `fk_products_category_idx` (`category_id` ASC) VISIBLE,
+  CONSTRAINT `fk_products_categories`
+    FOREIGN KEY (`category_id`)
+    REFERENCES `mydb`.`categories` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`orders`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`orders` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `order_date` DATETIME NOT NULL,
+  `total_amount` DECIMAL NOT NULL,
+  `customer_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+  INDEX `fk_orders_customers1_idx` (`customer_id` ASC) VISIBLE,
+  CONSTRAINT `fk_orders_customers1`
+    FOREIGN KEY (`customer_id`)
+    REFERENCES `mydb`.`customers` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`order_items`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`order_items` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `quantity` INT NOT NULL,
+  `unit_price` DECIMAL NOT NULL,
+  `order_id` INT NOT NULL,
+  `product_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+  INDEX `fk_order_items_orders1_idx` (`order_id` ASC) VISIBLE,
+  INDEX `fk_order_items_products1_idx` (`product_id` ASC) VISIBLE,
+  CONSTRAINT `fk_order_items_orders1`
+    FOREIGN KEY (`order_id`)
+    REFERENCES `mydb`.`orders` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_order_items_products1`
+    FOREIGN KEY (`product_id`)
+    REFERENCES `mydb`.`products` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+
+
+
+-- Insert dummy data into the customers table
+INSERT INTO customers (firstname, last_name, email, phone_number, region, city, password)
+VALUES 
+    ('John', 'Doe', 'john.doe@example.com', '123456789', 'North', 'New York', 'abcd1234'),
+    ('Jane', 'Smith', 'jane.smith@example.com', '987654321', 'South', 'Los Angeles', 'abcd1234');
+
+-- Insert dummy data into the categories table
+INSERT INTO categories (name)
+VALUES 
+    ('Electronics'),
+    ('Clothing'),
+    ('Books');
+
+-- Insert dummy data into the products table
+INSERT INTO products (name, description, price, stock_quantity, category_id, item_photo)
+VALUES 
+    ('Laptop', 'High-performance laptop', 999.99, 10, 1, 'laptop.jpg'),
+    ('T-shirt', 'Comfortable cotton t-shirt', 19.99, 50, 2, 'tshirt.jpg'),
+    ('Book', 'Bestseller novel', 29.99, 20, 3, 'book.jpg');
+
+-- Insert dummy data into the orders table
+INSERT INTO orders (order_date, total_amount, customer_id)
+VALUES 
+    ('2024-04-29 10:00:00', 1199.97, 1),
+    ('2024-04-30 11:00:00', 49.98, 2);
+
+-- Insert dummy data into the order_items table
+INSERT INTO order_items (quantity, unit_price, order_id, product_id)
+VALUES 
+    (1, 999.99, 1, 1),
+    (2, 19.99, 1, 2),
+    (1, 29.99, 2, 3);
+
+DELIMITER //
+CREATE TRIGGER after_order_item_insert
+AFTER INSERT ON order_items
+FOR EACH ROW
+BEGIN
+    UPDATE products
+    SET stock_quantity = stock_quantity - NEW.quantity
+    WHERE id = NEW.product_id;
+END;
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER after_order_item_delete
+AFTER DELETE ON order_items
+FOR EACH ROW
+BEGIN
+    UPDATE products
+    SET stock_quantity = stock_quantity + OLD.quantity
+    WHERE id = OLD.product_id;
+END;
+//
+DELIMITER ;

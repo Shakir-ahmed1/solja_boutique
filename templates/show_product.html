@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Product Details{% endblock %}
+{% block content %}
+<h1>Product Details</h1>
+<div class="card">
+    <h2>{{ product.name }}</h2>
+    <img src="{{ url_for('static', filename='images/' + product.item_photo) }}" alt="{{ product.name }}">
+    <p>Description: {{ product.description }}</p>
+    <p>Price: ${{ product.price }}</p>
+    <p>Stock Quantity: {{ product.stock_quantity }}</p>
+    <div class="quantity-container">
+        <button class="quantity-button" id="minus">-</button>
+        <input type="number" class="quantity-input" id="quantity" value="1">
+        <button class="quantity-button" id="plus">+</button>
+    </div>
+    <!-- Add more details of the product -->
+    <form action="/order_item" method="post">
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <input type="hidden" name="quantity" id="order_quantity" value="1">
+        <button type="submit">Add to Cart</button>
+    </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.getElementById('minus').addEventListener('click', function() {
+        var quantityInput = document.getElementById('quantity');
+        var quantity = parseInt(quantityInput.value);
+        if (quantity > 0) {
+            quantityInput.value = quantity - 1;
+        }
+        document.getElementById('order_quantity').value = quantityInput.value;
+        document.getElementById('plus').disabled = (quantityInput.value == {{ product.stock_quantity }});
+    });
+
+    document.getElementById('plus').addEventListener('click', function() {
+        var quantityInput = document.getElementById('quantity');
+        var quantity = parseInt(quantityInput.value);
+        if (quantity < {{ product.stock_quantity }}) {
+            quantityInput.value = quantity + 1;
+        }
+        document.getElementById('order_quantity').value = quantityInput.value;
+        document.getElementById('minus').disabled = (quantityInput.value == 0);
+        document.getElementById('plus').disabled = (quantityInput.value == {{ product.stock_quantity }});
+    });
+
+    // Add an event listener to the quantity input field
+    document.getElementById('quantity').addEventListener('input', function() {
+        var quantityInput = document.getElementById('quantity');
+        var quantity = parseInt(quantityInput.value);
+        if (quantity < 0 || isNaN(quantity)) { // Check if the entered value is negative or not a number
+            quantityInput.value = 0;
+        } else if (quantity > {{ product.stock_quantity }}) { // Check if the entered value exceeds the stock quantity
+            quantityInput.value = {{ product.stock_quantity }};
+        }
+        document.getElementById('order_quantity').value = quantityInput.value;
+        document.getElementById('minus').disabled = (quantityInput.value == 0);
+        document.getElementById('plus').disabled = (quantityInput.value == {{ product.stock_quantity }});
+    });
+</script>
+{% endblock %}

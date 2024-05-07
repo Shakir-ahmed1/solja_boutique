@@ -1,0 +1,86 @@
+<style>
+    /* Style the button */
+    .collapsible {
+        background-color: #777;
+        color: white;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+    }
+
+    /* Style the collapsible content. Note: hidden by default */
+    .content {
+        padding: 0 18px;
+        display: none;
+        overflow: hidden;
+        /* background-color: #f1f1f1; */
+    }
+</style>
+
+{% extends "admin_base.html" %}
+{% block title %}Order History{% endblock %}
+{% block content %}
+<h1>Order History</h1>
+{% for order in orders %}
+<!-- <p><strong>Order Date: {{ order.order_date }}</strong></p> -->
+<button class="collapsible" onclick="toggleContent('order{{order.id}}')">Date: {{ order.order_date }} | Total Items: {{orders[order]|length}} | CustomerId: {{order.customer_id}}</button>
+<ul>
+    <div class="content" id="order{{order.id}}">
+        <!-- {% for item in orders[order] %}
+        <p>{{item[1].name}}</p>
+        {% endfor %} -->
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_price = namespace(value=0) %}
+                {% for item in orders[order] %}
+                {% set total_price.value = total_price.value +item[0].unit_price * item[0].quantity %}
+
+                <tr>
+                    <td>{{ item[1].name }}</td>
+                    <td>{{ item[0].quantity }}</td>
+                    <td>${{ item[0].unit_price }}</td>
+                    <td>${{ item[0].unit_price * item[0].quantity }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td>Total</td>
+                    <td></td>
+                    <td></td>
+                    <td>${{ total_price.value }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+
+    </div>
+
+</ul>
+{% endfor %}
+{% block scripts %}
+<script>
+    // Function to toggle the visibility of the content based on its ID
+    function toggleContent(contentId) {
+        var content = document.getElementById(contentId);
+        if (content.style.display === "block") {
+            content.style.display = "none";
+        } else {
+            content.style.display = "block";
+        }
+    }
+</script>
+{% endblock%}
+{% endblock %}
+
